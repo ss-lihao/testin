@@ -6,10 +6,6 @@ require "date"
 
 module Testin
   class Error < StandardError; end
-  # Your code goes here...
-  def self.hello
-    p "hello from my gem"
-  end
 
   def Testin.get_task
     if @dynamic_param != nil
@@ -40,7 +36,7 @@ module Testin
           },
           proxy: "http://127.0.0.1:8888" # for debug
       }
-      @testin_client = Faraday.new(self.class.testin_hostname,@conn_options) do |c|
+      @testin_client = Faraday.new(self.class.testin_hostname, @conn_options) do |c|
         c.request :url_encoded
         c.adapter :net_http
         c.response :json, :content_type => /\bjson$/
@@ -90,7 +86,8 @@ module Testin
         raise 'Error FetchScriptNetwork' if info['data']['list'].empty?
         info['data']['list']
       rescue StandardError => e
-        raise e.to_s
+        #raise e.to_s
+        puts(e.to_s)
       end
     end
 
@@ -192,18 +189,17 @@ module Testin
 
         begin
           script_array = script.get_script_list
-          break if script_array.count == 0
+          break if script_array == nil || script_array.length == 0
           scripts = script_array.inject([]) do |r, e|
             r << {'scriptid': e['scriptid'],'scriptNo': e['scriptNo']} if e['taginfos'].include?'case' and e['projectId'].to_i == Testin::get_task.get_project_id and e['adapterversionname'].to_s == Testin::get_task.get_app_version
             r
           end
-          if scripts.count > 0
+          if scripts.length > 0
             array = array + scripts
           end
           start_page_no += 1
         rescue StandardError => e
-          puts e.to_s
-          break
+          raise e.to_s
         end
       end
       array.uniq
@@ -219,6 +215,8 @@ module Testin
       @project_name = options[:project_name]
       @api_key = options[:api_key]
       @app_version = options[:app_version]
+      @email = options[:email]
+      @pwd = options[:pwd]
 
       if @path.include?('ipa')
         @os_type = 2
@@ -230,6 +228,16 @@ module Testin
     def set_up
       self.set_sid
       self.set_project_id
+      puts("project_name:#{@project_name}")
+      puts("sid:#{@sid}")
+      puts("projectId:#{@project_id}")
+      puts("devices:#{@devices}")
+      puts("api_key:#{@api_key}")
+      puts("email:#{@email}")
+      puts("pwd:#{@pwd}")
+      puts("app_version:#{@app_version}")
+      puts("type:(android=1 iOS=2):#{@os_type}")
+      puts('**********************init successed**********************')
     end
 
     def get_app_version()
@@ -250,8 +258,8 @@ module Testin
           :mkey => 'usermanager',
           :op => 'Login.login',
           :data => {
-              :email => 'sephora06@sephora.cn',
-              :pwd => 'e10adc3949ba59abbe56e057f20f883e'
+              :email => @email,
+              :pwd => @pwd
           },
           :action => 'user',
           :timestamp => Time.now.to_i * 1000,
@@ -262,9 +270,8 @@ module Testin
 
       begin
         sid = net.get_login_token
-        puts 'sid:' + sid
       rescue StandardError => e
-        puts e.to_s
+        raise e.to_s
       end
       @sid = sid
     end
@@ -274,7 +281,6 @@ module Testin
     end
 
     def set_project_id()
-      #######获取项目组#######
       project_param = {
           "apikey": @api_key,
           "mkey":"usermanager",
@@ -292,7 +298,6 @@ module Testin
 
       begin
         project_id = project.get_project_list
-        puts 'project_id:' + project_id.to_s
       rescue StandardError => e
         puts e.to_s
       end
@@ -314,7 +319,7 @@ module Testin
         suffix = 'apk'
       end
 
-      #######上传任务##########
+      ####### upload file ##########
       upload_param = {
           "apikey":Testin::get_task.get_api_key,
           "timestamp":Time.now.to_i * 1000,
@@ -329,23 +334,27 @@ module Testin
       }
       config = {:param => upload_param}
       upload = Testin::TestinNetwork.new(config)
-
+      upload_file_path = ''
       begin
-        upload_file_path = 'http://fileupload.pro.testin.cn/group1/M00/D3/67/CiouFFyd1xeAGlPGBsUv3MCqMsQ020.ipa'
-        #upload_file_path = upload.upload_file('/Users/rudy.li/Desktop/Sephora-6.3.0.415.ipa')
-        #upload_file_path = upload.upload_file(@path)
-        puts 'upload:' + upload_file_path
+        raise "file does not exist #{@path}" if FileTest::exist?(@path) == false
+        puts '**********************start uploading**********************'
+        upload_file_path = upload.upload_file(@path)
+        puts '**********************end uploading**********************'
+        puts 'upload_file_path:' + upload_file_path
       rescue StandardError => e
-        puts e.to_s
+        raise e.to_s
       end
       upload_file_path
     end
     private :upload_file
 
 
-    #######创建任务#######
+    #######create task#######
     def create_task_for_normal
-
+      upload_file_path = upload_file
+      all_scripts = Testin::TestinNetwork.all_scripts
+      raise 'scripts is empty' if all_scripts == nil || all_scripts.length == 0
+      puts("all scripts length:#{all_scripts.length}")
       task_param =  {
           "apikey": Testin::get_task.get_api_key,
           "timestamp": Time.now.to_i * 1000,
@@ -359,10 +368,10 @@ module Testin
               "taskDescr": "autotest" ,
               "appinfo": {
                   "syspfId": self.get_os_type, #1：android; 2:ios
-                  "packageUrl": upload_file
+                  "packageUrl": upload_file_path
               }, # 应用信息
               "devices": @devices,
-              "scripts": Testin::TestinNetwork.all_scripts,
+              "scripts": all_scripts,
               "execStandard": {
                   #4000 自动化兼容测试：
                   #simple 安装+启动；
@@ -375,44 +384,53 @@ module Testin
               } # 执行策略
           }
       }
-
       config = {:param => task_param}
-
-      puts(config)
-      exit
-
       task = Testin::TestinNetwork.new(config)
-
       begin
-        task = task.creat_task
-        puts 'task:' + task.to_s
+        task.creat_task.to_s
       rescue StandardError => e
-        puts e.to_s
+        raise e.to_s
       end
     end
 
-
-    # #######获取设备#######
-    # device_param = {
-    #     "apikey":Testin::get_task.get_api_key,
-    #     "mkey":"controlcenter",
-    #     "op":"Device.list",
-    #     "data":{
-    #         "projectid":project_id,
-    #         "page":1,
-    #         "pageSize":10
-    #     },
-    #     "action":"device",
-    #     "timestamp": Time.now.to_i * 1000,
-    #     "sid": sid
-    # }
-    # config = {:param => device_param}
-    # device = Testin::TestinNetwork.new(config)
-    #
-    # begin
-    #   puts 'device:' + device.get_device_list.to_s
-    # rescue StandardError => e
-    #   puts e.to_s
-    # end
+    def create_task_for_fast
+      upload_file_path = upload_file
+      task_param =  {
+          "apikey": Testin::get_task.get_api_key,
+          "timestamp": Time.now.to_i * 1000,
+          "sid": self.get_sid,
+          "mkey": "realtest",
+          "action": "app",
+          "op": "Task.add",
+          "data": {
+              "projectid": self.get_project_id,
+              "bizCode": "4001" ,# 4000 自动化兼容测试； 4001 自动化功能测试
+              "taskDescr": "autotest" ,
+              "appinfo": {
+                  "syspfId": self.get_os_type, #1：android; 2:ios
+                  "packageUrl": upload_file_path
+              }, # 应用信息
+              "devices": @devices,
+              "scripts": Testin::TestinNetwork.all_scripts,
+              "execStandard": {
+                  #4000 自动化兼容测试：
+                  #simple 安装+启动；
+                  #monkey 安装+启动+monkey；
+                  #script 安装+执行脚本
+                  #4001 自动化功能测试：
+                  #normal 普通执行；
+                  #fast 快速执行
+                  "standardType": "fast",
+              } # 执行策略
+          }
+      }
+      config = {:param => task_param}
+      task = Testin::TestinNetwork.new(config)
+      begin
+        task.creat_task.to_s
+      rescue StandardError => e
+        raise e.to_s
+      end
+    end
   end
 end
