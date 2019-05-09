@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-testintask'
   spec.version       = Fastlane::Testintask::VERSION
   spec.author        = 'rudy.li'
-  spec.email         = 'rudy.li@connext.com.cn'
+  spec.email         = 'ss_lihao@163.com'
 
   spec.summary       = 'testin'
   spec.homepage      = "https://github.com/ss-lihao/testin/tree/master/fastlane-plugin-testintask"
