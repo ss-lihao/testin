@@ -34,7 +34,7 @@ module Testin
               timeout:      30,
               open_timeout: 300
           },
-          proxy: "http://127.0.0.1:8888" # for debug
+          #proxy: "http://127.0.0.1:8888" # for debug
       }
       @testin_client = Faraday.new(self.class.testin_hostname, @conn_options) do |c|
         c.request :url_encoded
