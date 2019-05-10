@@ -353,8 +353,8 @@ module Testin
     def create_task_for_normal
       upload_file_path = upload_file
       all_scripts = Testin::TestinNetwork.all_scripts
-      raise 'scripts is empty' if all_scripts == nil || all_scripts.length == 0
-      puts("all scripts length:#{all_scripts.length}")
+      raise 'script is empty' if all_scripts == nil || all_scripts.length == 0
+      puts("all script length:#{all_scripts.length}")
       task_param =  {
           "apikey": Testin::get_task.get_api_key,
           "timestamp": Time.now.to_i * 1000,
