@@ -7,20 +7,16 @@ module Fastlane
       def self.run(params)
         UI.message("The testintask plugin is working!")
         require 'testin'
-        global_options = {
-            :email => 'sephora06@sephora.cn',
-            :pwd => 'e10adc3949ba59abbe56e057f20f883e',
-            :path => '/Users/rudy.li/Desktop/Sephora-6.3.0.4151.ipa',
-            :devices => [
-                {
-                    "deviceid":'709173f92e1e2f9e450b657fa43c970e28495cf8'
-                }
-            ],
-            :project_name => '丝芙兰',
-            :api_key => '0cc70ef717d01b48ebfef5868a60cdd9',
-            :app_version => '6.3.0'
-        }
         begin
+          global_options = {
+              :email => params[:email],
+              :pwd => params[:pwd],
+              :path => params[:path],
+              :devices => params[:devices],
+              :project_name => params[:project_name],
+              :api_key => params[:api_key],
+              :app_version => params[:app_version]
+          }
           result = Testin.set_task(global_options).create_task_for_normal
           UI.message("Testin Plugin Successed: #{result}")
         rescue StandardError => e
@@ -47,11 +43,48 @@ module Fastlane
 
       def self.available_options
         [
-          # FastlaneCore::ConfigItem.new(key: :your_option,
-          #                         env_name: "TESTINTASK_YOUR_OPTION",
-          #                      description: "A description of your option",
-          #                         optional: false,
-          #                             type: String)
+            FastlaneCore::ConfigItem.new(key: :email,
+                                         env_name: "TESTIN_LOGIN_EMAIL",
+                                         description: "email in your testin account",
+                                         optional: false,
+                                         type: String),
+            FastlaneCore::ConfigItem.new(key: :pwd,
+                                         env_name: "TESTIN_LOGIN_PWD",
+                                         description: "pwd in your testin account",
+                                         optional: false,
+                                         type: String),
+            FastlaneCore::ConfigItem.new(key: :path,
+                                         env_name: "TESTIN_PATH",
+                                         description: "Path to your apk/ipa file",
+                                         default_value: Actions.lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH],
+                                         optional: false,
+                                         verify_block: proc do |value|
+                                           UI.user_error!("Couldn't find apk file at path '#{value}'") unless File.exist?(value)
+                                         end,
+                                         conflicting_options: [:ipa],
+                                         conflict_block: proc do |value|
+                                           UI.user_error!("You can't use 'apk' and '#{value.key}' options in one run")
+                                         end),
+            FastlaneCore::ConfigItem.new(key: :devices,
+                                         env_name: "TESTIN_DEVICES",
+                                         description: "Set up the device for script testing",
+                                         optional: false,
+                                         type: Array),
+            FastlaneCore::ConfigItem.new(key: :project_name,
+                                         env_name: "TESTIN_PROJECT_NAME",
+                                         description: "Set the testin project name for testing",
+                                         optional: false,
+                                         type: String),
+            FastlaneCore::ConfigItem.new(key: :api_key,
+                                         env_name: "TESTIN_API_KEY",
+                                         description: "Testin api key",
+                                         optional: false,
+                                         type: String),
+            FastlaneCore::ConfigItem.new(key: :app_version,
+                                         env_name: "TESTIN_API_KEY",
+                                         description: "Set up the version for script testing",
+                                         optional: false,
+                                         type: String)
         ]
       end
 
