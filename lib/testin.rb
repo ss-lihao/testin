@@ -169,19 +169,19 @@ module Testin
       while
         #######获取脚本#######
       script_param = {
-          'apikey': Testin::get_task.get_api_key,
-          'mkey': 'script',
-          'sid':Testin::get_task.get_sid,
-          'op': 'Script.listScriptFile',
-          'action': 'script',
-          'timestamp': Time.now.to_i * 1000,
-          'data': {
-              'scriptDesc': '',
-              'appId': 0,
-              'startPageNo': start_page_no,
-              'osType': Testin::get_task.get_os_type,
-              'pageSize': 15,
-              'projectId': Testin::get_task.get_project_id
+          :apikey => Testin::get_task.get_api_key,
+          :mkey => 'script',
+          :sid => Testin::get_task.get_sid,
+          :op => 'Script.listScriptFile',
+          :action => 'script',
+          :timestamp => Time.now.to_i * 1000,
+          :data => {
+              :scriptDesc => '',
+              :appId => 0,
+              :startPageNo => start_page_no,
+              :osType => Testin::get_task.get_os_type,
+              :pageSize => 15,
+              :projectId => Testin::get_task.get_project_id
           }
       }
         config = {:param => script_param}
@@ -191,7 +191,7 @@ module Testin
           script_array = script.get_script_list
           break if script_array == nil || script_array.length == 0
           scripts = script_array.inject([]) do |r, e|
-            r << {'scriptid': e['scriptid'],'scriptNo': e['scriptNo']} if e['taginfos'].include?'case' and e['projectId'].to_i == Testin::get_task.get_project_id and e['adapterversionname'].to_s == Testin::get_task.get_app_version
+            r << {:scriptid => e['scriptid'],:scriptNo => e['scriptNo']} if e['taginfos'].include?'case' and e['projectId'].to_i == Testin::get_task.get_project_id and e['adapterversionname'].to_s == Testin::get_task.get_app_version
             r
           end
           if scripts.length > 0
@@ -282,16 +282,16 @@ module Testin
 
     def set_project_id()
       project_param = {
-          "apikey": @api_key,
-          "mkey":"usermanager",
-          "op":"Project.getUserProjectList",
-          "data":{
-              "page":1,
-              "pageSize":10
+          :apikey => @api_key,
+          :mkey => "usermanager",
+          :op => "Project.getUserProjectList",
+          :data => {
+              :page => 1,
+              :pageSize => 10
           },
-          "action":"user",
-          "timestamp":Time.now.to_i * 1000,
-          "sid": @sid
+          :action => "user",
+          :timestamp => Time.now.to_i * 1000,
+          :sid => @sid
       }
       config = {:param => project_param}
       project = Testin::TestinNetwork.new(config)
@@ -321,15 +321,15 @@ module Testin
 
       ####### upload file ##########
       upload_param = {
-          "apikey":Testin::get_task.get_api_key,
-          "timestamp":Time.now.to_i * 1000,
-          "sid":self.get_sid,
-          "mkey":"fs",
-          "action":"fs",
-          "op":"File.upload",
-          "data":
+          :apikey => Testin::get_task.get_api_key,
+          :timestamp =>Time.now.to_i * 1000,
+          :sid => self.get_sid,
+          :mkey => "fs",
+          :action => "fs",
+          :op => "File.upload",
+          :data =>
               {
-                  "suffix":suffix #后缀必须写对
+                  :suffix => suffix #后缀必须写对
               }
       }
       config = {:param => upload_param}
@@ -356,23 +356,23 @@ module Testin
       raise 'script is empty' if all_scripts == nil || all_scripts.length == 0
       puts("all script length:#{all_scripts.length}")
       task_param =  {
-          "apikey": Testin::get_task.get_api_key,
-          "timestamp": Time.now.to_i * 1000,
-          "sid": self.get_sid,
-          "mkey": "realtest",
-          "action": "app",
-          "op": "Task.add",
-          "data": {
-              "projectid": self.get_project_id,
-              "bizCode": "4001" ,# 4000 自动化兼容测试； 4001 自动化功能测试
-              "taskDescr": "autotest" ,
-              "appinfo": {
-                  "syspfId": self.get_os_type, #1：android; 2:ios
-                  "packageUrl": upload_file_path
+          :apikey => Testin::get_task.get_api_key,
+          :timestamp => Time.now.to_i * 1000,
+          :sid => self.get_sid,
+          :mkey => "realtest",
+          :action => "app",
+          :op => "Task.add",
+          :data => {
+              :projectid => self.get_project_id,
+              :bizCode => "4001" ,# 4000 自动化兼容测试； 4001 自动化功能测试
+              :taskDescr => "autotest" ,
+              :appinfo => {
+                  :syspfId => self.get_os_type, #1：android; 2:ios
+                  :packageUrl => upload_file_path
               }, # 应用信息
-              "devices": @devices,
-              "scripts": all_scripts,
-              "execStandard": {
+              :devices => @devices,
+              :scripts => all_scripts,
+              :execStandard => {
                   #4000 自动化兼容测试：
                   #simple 安装+启动；
                   #monkey 安装+启动+monkey；
@@ -380,7 +380,7 @@ module Testin
                   #4001 自动化功能测试：
                   #normal 普通执行；
                   #fast 快速执行
-                  "standardType": "normal",
+                  :standardType => "normal",
               } # 执行策略
           }
       }
@@ -396,23 +396,23 @@ module Testin
     def create_task_for_fast
       upload_file_path = upload_file
       task_param =  {
-          "apikey": Testin::get_task.get_api_key,
-          "timestamp": Time.now.to_i * 1000,
-          "sid": self.get_sid,
-          "mkey": "realtest",
-          "action": "app",
-          "op": "Task.add",
-          "data": {
-              "projectid": self.get_project_id,
-              "bizCode": "4001" ,# 4000 自动化兼容测试； 4001 自动化功能测试
-              "taskDescr": "autotest" ,
-              "appinfo": {
-                  "syspfId": self.get_os_type, #1：android; 2:ios
-                  "packageUrl": upload_file_path
+          :apikey => Testin::get_task.get_api_key,
+          :timestamp => Time.now.to_i * 1000,
+          :sid => self.get_sid,
+          :mkey => "realtest",
+          :action => "app",
+          :op => "Task.add",
+          :data => {
+              :projectid => self.get_project_id,
+              :bizCode => "4001" ,# 4000 自动化兼容测试； 4001 自动化功能测试
+              :taskDescr => "autotest" ,
+              :appinfo => {
+                  :syspfId => self.get_os_type, #1：android; 2:ios
+                  :packageUrl => upload_file_path
               }, # 应用信息
-              "devices": @devices,
-              "scripts": Testin::TestinNetwork.all_scripts,
-              "execStandard": {
+              :devices => @devices,
+              :scripts => Testin::TestinNetwork.all_scripts,
+              :execStandard => {
                   #4000 自动化兼容测试：
                   #simple 安装+启动；
                   #monkey 安装+启动+monkey；
@@ -420,7 +420,7 @@ module Testin
                   #4001 自动化功能测试：
                   #normal 普通执行；
                   #fast 快速执行
-                  "standardType": "fast",
+                  :standardType => "fast",
               } # 执行策略
           }
       }
