@@ -1,11 +1,11 @@
 require 'fastlane/action'
-require_relative '../helper/testintask_helper'
+require_relative '../helper/testin_helper'
 
 module Fastlane
   module Actions
-    class TestintaskAction < Action
+    class TestinAction < Action
       def self.run(params)
-        UI.message("The testintask plugin is working!")
+        UI.message("The testin plugin is working!")
         require 'testin'
         begin
           global_options = {
@@ -17,11 +17,11 @@ module Fastlane
               :api_key => params[:api_key],
               :app_version => params[:app_version]
           }
-          result = Testin.set_task(global_options).create_task_for_normal
+          result = ::Testin.set_task(global_options).create_task_for_normal
           UI.message("Testin Plugin Successed: #{result}")
         rescue StandardError => e
           UI.user_error!("Testin Plugin Error: #{e.to_s}")
-        end
+         end
       end
 
       def self.description

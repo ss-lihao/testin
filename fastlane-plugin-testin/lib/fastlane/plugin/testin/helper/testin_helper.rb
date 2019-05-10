@@ -4,12 +4,12 @@ module Fastlane
   UI = FastlaneCore::UI unless Fastlane.const_defined?("UI")
 
   module Helper
-    class TestintaskHelper
+    class TestinHelper
       # class methods that you define here become available in your action
-      # as `Helper::TestintaskHelper.your_method`
+      # as `Helper::TestinHelper.your_method`
       #
       def self.show_message
-        UI.message("Hello from the testintask plugin helper!")
+        UI.message("Hello from the testin plugin helper!")
       end
     end
   end

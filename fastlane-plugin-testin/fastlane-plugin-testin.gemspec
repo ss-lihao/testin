@@ -2,16 +2,16 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'fastlane/plugin/testintask/version'
+require 'fastlane/plugin/testin/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'fastlane-plugin-testintask'
-  spec.version       = Fastlane::Testintask::VERSION
+  spec.name          = 'fastlane-plugin-testin'
+  spec.version       = Fastlane::Testin::VERSION
   spec.author        = 'rudy.li'
-  spec.email         = 'ss_lihao@163.com'
+  spec.email         = 'rudy.li@connext.com.cn'
 
   spec.summary       = 'testin'
-  spec.homepage      = "https://github.com/ss-lihao/testin/tree/master/fastlane-plugin-testintask"
+  spec.homepage      = "https://github.com/ss-lihao/testin/tree/master/fastlane-plugin-testin"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)

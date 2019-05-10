@@ -1,7 +1,7 @@
-require 'fastlane/plugin/testintask/version'
+require 'fastlane/plugin/testin/version'
 
 module Fastlane
-  module Testintask
+  module Testin
     # Return all .rb files inside the "actions" and "helper" directory
     def self.all_classes
       Dir[File.expand_path('**/{actions,helper}/*.rb', File.dirname(__FILE__))]
@@ -11,6 +11,6 @@ end
 
 # By default we want to import all available actions and helpers
 # A plugin can contain any number of actions and plugins
-Fastlane::Testintask.all_classes.each do |current|
+Fastlane::Testin.all_classes.each do |current|
   require current
 end

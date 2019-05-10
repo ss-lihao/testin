@@ -1,5 +1,5 @@
 module Fastlane
-  module Testintask
+  module Testin
     VERSION = "0.1.0"
   end
 end
