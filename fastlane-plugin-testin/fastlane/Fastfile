@@ -1,15 +1,15 @@
 lane :test do
   p = {
-          :email => 'sephora06@sephora.cn',
-          :pwd => 'e10adc3949ba59abbe56e057f20f883e',
-          :path => '/Users/rudy.li/Desktop/Sephora-6.3.0.415.ipa',
+          :email => 'xxx@xx.com',
+          :pwd => 'xxxxxxxx',
+          :path => '/Users/xxx/Desktop/xxxx.ipa',
           :devices => [
           {
-              "deviceid":'709173f92e1e2f9e450b657fa43c970e28495cf8'
+              "deviceid":'xxxxxxxx'
           }
           ],
-          :project_name => '丝芙兰',
-          :api_key => '0cc70ef717d01b48ebfef5868a60cdd9',
+          :project_name => 'xxxxx',
+          :api_key => 'xxxxxx',
           :app_version => '6.4.0'
       }
   testin(email:p[:email],pwd:p[:pwd],path:p[:path],devices:p[:devices],project_name:p[:project_name],api_key:p[:api_key],app_version:p[:app_version])
